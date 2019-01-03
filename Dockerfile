@@ -1,4 +1,4 @@
-FROM ruby:2.6.0-alpine
+FROM ruby:2.5.0-alpine
 LABEL maintainer="info@appvia.io"
 LABEL source="https://github.com/appvia/rds-scheduler"
 
@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk update && apk upgrade
 
 # Copy application files into image
-COPY src /app/
+COPY lib Gemfile Gemfile.lock /app/
 
 # Create a non-root user and set file permissions
 RUN addgroup -S app \
@@ -19,7 +19,7 @@ RUN addgroup -S app \
 USER 1000
 
 # Fetch dependencies
-RUN bundle install --gemfile=Gemfile --path=vendor/bundle
+RUN bundle install --deployment --without test
 
 # Set the run command
 CMD ["ruby", "run.rb"]

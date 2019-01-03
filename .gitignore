@@ -1,3 +1,5 @@
+.DS_Store
+.bundle/*
+src/.bundle/*
 src/vendor/*
 vendor/*
-.DS_Store

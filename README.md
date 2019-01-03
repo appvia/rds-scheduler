@@ -33,8 +33,9 @@ docker run --rm -t -v ~/.aws:/home/app/.aws:ro -e AWS_PROFILE=my-aws-profile qua
 
 The following environment variables can be passed:
 - `DRY_RUN`: Don't make any changes to RDS instances, just prints what actions would be performed to stdout (default: `false`)
-- `LOOP_INTERVAL`: How frequently (in seconds) to loop and perform checks on the RDS instance schedules (default: `30`)
+- `LOOP_INTERVAL_SECS`: How frequently (in seconds) to loop and perform checks on the RDS instance schedules (default: `60`)
 - `RUN_ONCE`: Loop through RDS instances only once and exit the script (default: `false`)
+- `TAG_UPTIME_SCHEDULE`: AWS Tag name on the RDS instances containing a time definition (default: `appvia.io/rds-scheduler/uptime-schedule`)
 
 ### Kubernetes
 
@@ -53,8 +54,14 @@ If you're using **[rbenv](https://github.com/rbenv/rbenv)**:
 # Install Ruby v2.5.0
 rbenv install 2.5.0
 
+# Install / Update bundler
+gem install bundler
+
 # Download dependencies
-bundle install --gemfile=src/Gemfile --path=src/vendor/bundle
+bundle install --path=lib/vendor/bundle --deployment --without test
+
+# Copy Gemfiles to the lib directory
+cp Gemfile* lib/
 ```
 
 Example deployment files are located in the [./examples/terraform](./examples/terraform) directory. The Lambda Function is configured to trigger via a CloudWatch Event Rule and execute every 5 minutes.
