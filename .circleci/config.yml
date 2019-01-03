@@ -1,0 +1,51 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Build Image
+          command: docker build -t appvia/rds-scheduler:$CIRCLE_SHA1 .
+  push_latest:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Push to Quay with tag latest
+          command: |
+            docker build -t quay.io/appvia/rds-scheduler:latest .
+            docker login quay.io --username $QUAY_USERNAME --password $QUAY_PASSWORD
+            docker push quay.io/appvia/rds-scheduler:latest
+  push_tag:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Push to Quay with Git tag
+          command: |
+            docker build -t quay.io/appvia/rds-scheduler:$CIRCLE_TAG .
+            docker login quay.io --username $QUAY_USERNAME --password $QUAY_PASSWORD
+            docker push quay.io/appvia/rds-scheduler:$CIRCLE_TAG
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+  push_latest:
+    jobs:
+      - push_latest:
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              ignore: /.*/
+  push_tag:
+    jobs:
+      - push_tag:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/

@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rds-scheduler
+  labels:
+    name: rds-scheduler
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: rds-scheduler
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - image: quay.io/appvia/rds-scheduler:latest
+        name: rds-scheduler
+        envFrom:
+        - secretRef:
+            name: aws-credentials

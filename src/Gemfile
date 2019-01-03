@@ -1,0 +1,8 @@
+source :rubygems
+
+gem 'activesupport'
+gem 'aws-sdk-rds'
+gem 'bundler'
+gem 'logger'
+gem 'tzinfo'
+gem 'tzinfo-data'
