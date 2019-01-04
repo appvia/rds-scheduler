@@ -66,7 +66,7 @@ cp Gemfile* lib/
 
 Example deployment files are located in the [./examples/terraform](./examples/terraform) directory. The Lambda Function is configured to trigger via a CloudWatch Event Rule and execute every 5 minutes.
 
-All log output of the Lambda Function is recorded under a CloudWatch Log Group, keeping the same name as the Function (`rds-scheduler`). This is accessible under the following URL (replace with the relevant AWS region): `https://eu-west-2.console.aws.amazon.com/cloudwatch/home?region=eu-west-2#logStream:group=/aws/lambda/acp-rds-scheduler`
+All log output of the Lambda Function is recorded under a CloudWatch Log Group, keeping the same name as the Function (`rds-scheduler`). This is accessible under the following URL (replace with the relevant AWS region): `https://eu-west-2.console.aws.amazon.com/cloudwatch/home?region=eu-west-2#logStream:group=/aws/lambda/rds-scheduler`
 
 ## IAM Permissions
 
