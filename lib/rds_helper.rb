@@ -20,25 +20,25 @@ class RDSHelper
     ).tag_list
   end
 
-  def start_db_instance(db_name, db_status, db_schedule)
+  def start_db_instance(db_name, db_status, db_schedule, schedule_type)
     if db_status.eql? 'stopped'
-      @logger.info "Starting DB Instance '#{db_name}' (schedule: '#{db_schedule}', dry_run: #{@dry_run})"
+      @logger.info "Starting DB Instance '#{db_name}' (#{schedule_type} schedule: '#{db_schedule}', dry_run: #{@dry_run})"
       @rds_client.start_db_instance(db_instance_identifier: db_name) unless @dry_run
     elsif db_status.eql? 'available'
-      @logger.info "DB Instance '#{db_name}' is currently available (schedule: '#{db_schedule}')"
+      @logger.info "DB Instance '#{db_name}' is currently available (#{schedule_type} schedule: '#{db_schedule}')"
     else
-      @logger.warn "DB Instance '#{db_name}' is not in a stopped state, not taking action (status: #{db_status}, schedule: '#{db_schedule}')"
+      @logger.warn "DB Instance '#{db_name}' is not in a stopped state, not taking action (status: #{db_status}, #{schedule_type} schedule: '#{db_schedule}')"
     end
   end
 
-  def stop_db_instance(db_name, db_status, db_schedule)
+  def stop_db_instance(db_name, db_status, db_schedule, schedule_type)
     if %w[stopping stopped].include?(db_status)
-      @logger.info "DB Instance '#{db_name}' is currently stopped (status: #{db_status}, schedule: '#{db_schedule}')"
+      @logger.info "DB Instance '#{db_name}' is currently stopped (status: #{db_status}, #{schedule_type} schedule: '#{db_schedule}')"
     elsif db_status.eql? 'available'
-      @logger.info "Stopping DB Instance '#{db_name}' (schedule: '#{db_schedule}', dry_run: #{@dry_run})"
+      @logger.info "Stopping DB Instance '#{db_name}' (#{schedule_type} schedule: '#{db_schedule}', dry_run: #{@dry_run})"
       @rds_client.stop_db_instance(db_instance_identifier: db_name) unless @dry_run
     else
-      @logger.warn "DB Instance '#{db_name}' is not in a running state, not taking action (status: #{db_status}, schedule: '#{db_schedule}')"
+      @logger.warn "DB Instance '#{db_name}' is not in a running state, not taking action (status: #{db_status}, #{schedule_type} schedule: '#{db_schedule}')"
     end
   end
 end
