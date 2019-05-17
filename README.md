@@ -6,18 +6,23 @@ Manage uptime schedules for RDS Instances and shutdown instances outside of work
 
 All RDS instances are checked for a given AWS Tag, `appvia.io/rds-scheduler/uptime-schedule`, to determine whether they need to be managed according to a specified uptime schedule. If the AWS Tag is not found, no action is taken on that DB instance.
 
-The value of an AWS Tag should hold a time definition matching the pattern: `<WEEKDAY-FROM>-<WEEKDAY-TO> <HH:MM-FROM>-<HH:MM-TO> <TIMEZONE>`
+The value of an AWS Tag should hold a time definition matching the pattern: `<WEEKDAY-FROM>-<WEEKDAY-TO> <HH:MM-FROM>-<HH:MM-TO> <TIMEZONE>` with the week definition running from Monday => Sunday.
 
-For example:
+Example use:
 ```yml
+# Keep RDS online from Monday 08:30 until Friday 18:00, and shutdown at all other times
 appvia.io/rds-scheduler/uptime-schedule: MON-FRI 08:30-18:00 Europe/London
 ```
 
-The above definition would start an RDS instance at 08:30 and shut it down at 18:00 on weekdays only, leaving the instance in a stopped state in the evenings and weekends.
+OR alternatively:
+```yml
+# Shutdown RDS from Friday 18:00 through to Sunday 20:00
+appvia.io/rds-scheduler/downtime-schedule: FRI-SUN 18:00-20:00 Europe/London
+```
 
 ## Usage
 
-Set the Tag `appvia.io/rds-scheduler/uptime-schedule` on each RDS instance, providing a time definition to keep the RDS instance online for.
+Set the Tag `appvia.io/rds-scheduler/uptime-schedule` (or `appvia.io/rds-scheduler/downtime-schedule`) on each RDS instance, providing a time definition as described above.
 
 Run the docker container, providing AWS Credentials either as environment variables or mounting in your AWS config directory, e.g.:
 
@@ -36,6 +41,7 @@ The following environment variables can be passed:
 - `LOOP_INTERVAL_SECS`: How frequently (in seconds) to loop and perform checks on the RDS instance schedules (default: `60`)
 - `RUN_ONCE`: Loop through RDS instances only once and exit the script (default: `false`)
 - `TAG_UPTIME_SCHEDULE`: AWS Tag name on the RDS instances containing a time definition (default: `appvia.io/rds-scheduler/uptime-schedule`)
+- `TAG_DOWNTIME_SCHEDULE`: AWS Tag name on the RDS instances containing a time definition (default: `appvia.io/rds-scheduler/downtime-schedule`)
 
 ### Kubernetes
 

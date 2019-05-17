@@ -17,6 +17,7 @@ class RDSScheduler
     @rds_client = RDSHelper.new(dry_run: dry_run, logger: @logger)
     @run_once = ENV.fetch('RUN_ONCE', false).to_s.casecmp('true').zero?
     @tag_uptime_schedule = ENV.fetch('TAG_UPTIME_SCHEDULE', 'appvia.io/rds-scheduler/uptime-schedule')
+    @tag_downtime_schedule = ENV.fetch('TAG_DOWNTIME_SCHEDULE', 'appvia.io/rds-scheduler/downtime-schedule')
     @time_parser = TimeScheduleParser.new
   end
 
@@ -28,12 +29,16 @@ class RDSScheduler
       dbs.each do |rds|
         tags = @rds_client.db_tags(rds.db_instance_arn)
 
-        db_schedule = false
+        db_schedule, downtime_schedule = false
         tags.each do |tag|
-          (db_schedule = tag.value) && break if tag.key.eql?(@tag_uptime_schedule)
+          next unless tag.key.eql?(@tag_uptime_schedule) || tag.key.eql?(@tag_downtime_schedule)
+
+          db_schedule = tag.value
+          downtime_schedule = tag.key.eql?(@tag_downtime_schedule)
+          break
         end
 
-        process_schedule(rds.db_instance_identifier, rds.db_instance_status, db_schedule)
+        process_schedule(rds.db_instance_identifier, rds.db_instance_status, db_schedule, downtime_schedule)
       end
 
       break if @run_once
@@ -43,18 +48,19 @@ class RDSScheduler
     end
   end
 
-  def process_schedule(db_name, db_status, db_schedule)
+  def process_schedule(db_name, db_status, db_schedule, downtime_schedule)
     if db_schedule
       begin
         parsed_schedule = @time_parser.parse_schedule(db_schedule)
       rescue StandardError => e
         @logger.warn "DB Instance '#{db_name}' has an invalid schedule: #{e.message}"
       else
+        schedule_type = downtime_schedule ? 'downtime' : 'uptime'
         begin
-          if @time_parser.schedule_active?(parsed_schedule)
-            @rds_client.start_db_instance(db_name, db_status, db_schedule)
+          if (@time_parser.schedule_active?(parsed_schedule) && !downtime_schedule) || (!@time_parser.schedule_active?(parsed_schedule) && downtime_schedule)
+            @rds_client.start_db_instance(db_name, db_status, db_schedule, schedule_type)
           else
-            @rds_client.stop_db_instance(db_name, db_status, db_schedule)
+            @rds_client.stop_db_instance(db_name, db_status, db_schedule, schedule_type)
           end
         rescue TimeScheduleParser::TimezoneInvalid => e
           @logger.error "Error processing Time Schedule for DB Instance '#{db_name}': #{e.message}"
