@@ -8,7 +8,12 @@ WORKDIR /app
 RUN apk update && apk upgrade
 
 # Copy application files into image
-COPY lib Gemfile Gemfile.lock /app/
+COPY Gemfile Gemfile.lock /app/
+
+# Fetch dependencies
+RUN bundle install --deployment --without test
+
+COPY lib /app/
 
 # Create a non-root user and set file permissions
 RUN addgroup -S app \
@@ -17,9 +22,6 @@ RUN addgroup -S app \
 
 # Run as the non-root user
 USER 1000
-
-# Fetch dependencies
-RUN bundle install --deployment --without test
 
 # Set the run command
 CMD ["ruby", "run.rb"]
