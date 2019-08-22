@@ -88,11 +88,11 @@ class RDSScheduler
             end
           end
         rescue TimeScheduleParser::TimezoneInvalid => e
-          @logger.error "Error processing Time Schedule for DB #{is_cluster ? 'Cluster': 'Instance' } '#{db_name}': #{e.message}"
+          @logger.error "Error processing Time Schedule for DB #{is_cluster ? 'Cluster' : 'Instance'} '#{db_name}': #{e.message}"
         end
       end
     else
-      @logger.info "DB #{is_cluster ? 'Cluster': 'Instance' } '#{db_name}' has no schedule defined (status: #{db_status})"
+      @logger.info "DB #{is_cluster ? 'Cluster' : 'Instance'} '#{db_name}' has no schedule defined (status: #{db_status})"
     end
   end
 end

@@ -16,9 +16,10 @@ class RDSHelper
   end
 
   def db_cluster_instances
+    @logger.info "Evaluating this!"
     instance_set = Set[]
-    db_clusters.each do |cluster| 
-      cluster.db_cluster_members.each do|instance|
+    db_clusters.each do |cluster|
+      cluster.db_cluster_members.each do |instance|
         instance_set.add instance.db_instance_identifier
       end
     end
@@ -27,7 +28,7 @@ class RDSHelper
 
   def db_instances
     cluster_instances = db_cluster_instances
-    @rds_client.describe_db_instances.db_instances.reject{|elem| cluster_instances.include? elem.db_instance_identifier}
+    @rds_client.describe_db_instances.db_instances.reject { |elem| cluster_instances.include? elem.db_instance_identifier }
   end
 
   def db_tags(db_arn)
@@ -38,9 +39,9 @@ class RDSHelper
 
   def cluster_tags(cluster)
     db_tags(
-      @rds_client.describe_db_instances({
+      @rds_client.describe_db_instances(
         db_instance_identifier: cluster.db_cluster_members.first.db_instance_identifier
-      }).db_instances.first.db_instance_arn
+      ).db_instances.first.db_instance_arn
     )
   end
 
