@@ -16,7 +16,6 @@ class RDSHelper
   end
 
   def db_cluster_instances
-    @logger.info "Evaluating this!"
     instance_set = Set[]
     db_clusters.each do |cluster|
       cluster.db_cluster_members.each do |instance|
