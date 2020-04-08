@@ -38,7 +38,7 @@ class RDSScheduler
           break
         end
 
-        process_schedule(rds.db_instance_identifier, rds.db_instance_status, db_schedule, downtime_schedule)
+        process_schedule(rds.db_cluster_identifier, rds.db_instance_identifier, rds.db_instance_status, db_schedule, downtime_schedule)
       end
 
       break if @run_once
@@ -48,7 +48,7 @@ class RDSScheduler
     end
   end
 
-  def process_schedule(db_name, db_status, db_schedule, downtime_schedule)
+  def process_schedule(db_cluster_identifier, db_name, db_status, db_schedule, downtime_schedule)
     if db_schedule
       begin
         parsed_schedule = @time_parser.parse_schedule(db_schedule)
@@ -58,9 +58,15 @@ class RDSScheduler
         schedule_type = downtime_schedule ? 'downtime' : 'uptime'
         begin
           if (@time_parser.schedule_active?(parsed_schedule) && !downtime_schedule) || (!@time_parser.schedule_active?(parsed_schedule) && downtime_schedule)
-            @rds_client.start_db_instance(db_name, db_status, db_schedule, schedule_type)
-          else
+            if db_cluster_identifier.nil?
+              @rds_client.start_db_instance(db_name, db_status, db_schedule, schedule_type)
+            else
+              @rds_client.start_db_cluster(db_cluster_identifier, db_status, db_schedule, schedule_type)
+            end
+          elsif db_cluster_identifier.nil?
             @rds_client.stop_db_instance(db_name, db_status, db_schedule, schedule_type)
+          else
+            @rds_client.stop_db_cluster(db_cluster_identifier, db_status, db_schedule, schedule_type)
           end
         rescue TimeScheduleParser::TimezoneInvalid => e
           @logger.error "Error processing Time Schedule for DB Instance '#{db_name}': #{e.message}"
