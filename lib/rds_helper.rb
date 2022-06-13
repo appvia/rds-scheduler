@@ -12,7 +12,7 @@ class RDSHelper
 
   def db_instances
     instances = []
-    @rds_client.describe_db_instances(max_records:100).each do |page|
+    @rds_client.describe_db_instances(max_records: 100).each do |page|
       instances.concat(page.db_instances)
     end
     instances
