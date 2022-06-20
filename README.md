@@ -1,6 +1,6 @@
 # RDS Scheduler
 
-[![Build_Status](https://circleci.com/gh/appvia/rds-scheduler.svg?style=svg)](https://circleci.com/gh/appvia/rds-scheduler) [![Docker Repository on Quay](https://quay.io/repository/appvia/rds-scheduler/status "Docker Repository on Quay")](https://quay.io/repository/appvia/rds-scheduler)
+![Build_Status](https://github.com/appvia/rds-scheduler/actions/workflows/publish.yaml/badge.svg) [![Docker Repository on Quay](https://quay.io/repository/appvia/rds-scheduler/status "Docker Repository on Quay")](https://quay.io/repository/appvia/rds-scheduler)
 
 Manage uptime schedules for RDS Instances and shutdown instances outside of working hours.
 
