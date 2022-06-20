@@ -1,0 +1,50 @@
+name: Publish Assets
+
+on:
+  push:
+    branches: [master]
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
+
+  push-image:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+
+      - name: Login to Quay
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Retrieve Image
+        uses: actions/download-artifact@v2
+        with:
+          name: rds-scheduler-image
+          path: /tmp
+
+      - name: Load Image
+        run: |
+          docker load -i /tmp/rds-scheduler-image.tar
+
+      - name: Get image tag
+        id: get_image_tag
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "master" ]]; then
+            echo "::set-output name=image_tag::latest"
+          else
+            echo "::set-output name=image_tag::${GITHUB_REF##*/}"
+          fi
+
+      - name: Push image
+        run: |
+          docker tag quay.io/appvia/rds-scheduler:ci quay.io/appvia/rds-scheduler:${{ steps.get_image_tag.outputs.image_tag }}
+          docker push quay.io/appvia/rds-scheduler:${{ steps.get_image_tag.outputs.image_tag }}
