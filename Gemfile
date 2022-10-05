@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.5.0'
+ruby '2.5.9'
 
 gem 'activesupport'
 gem 'aws-sdk-rds'
