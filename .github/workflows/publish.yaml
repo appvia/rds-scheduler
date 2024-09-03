@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.QUAY_PASSWORD }}
 
       - name: Retrieve Image
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: rds-scheduler-image
           path: /tmp
